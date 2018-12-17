@@ -9,11 +9,16 @@ class Base(object):
         
     def query(self, sql, pdo):
         
-        rows = self.db.session.execute(sql, pdo)
+        result = self.db.session.execute(sql, pdo)
         
         # TODO add error handling for failed queries
         
-        return [dict(row.items()) for row in rows]
+        # If the query doesn't return any rows (e.g., a typical INSERT, UPDATE or DELETE)
+        # then we just return a standard rows affected
+        if result.returns_rows == False:
+            return [{"rows_affected":result.rowcount}]
+        else:
+            return [dict(row.items()) for row in result]
 
     def to_json(self, result):
         # TODO add error handling for bad data or null values

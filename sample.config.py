@@ -7,4 +7,4 @@ class Config(object):
     DB = 'database'
     HOST = '127.0.0.1'
     PORT = '5432'
-    # DEBUG = True
+    DEBUG = True

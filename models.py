@@ -59,12 +59,12 @@ class Message(BaseModel, db.Model):
     message_id = db.Column(db.BigInteger, primary_key = True)
     conversation_id = db.Column(db.BigInteger, index = True)
     text = db.Column(db.Text)
-    user_id = db.Column(db.Text, index = True)
-    expiration = db.Column(db.TIMESTAMP(True), index = True)
+    user_id = db.Column(db.BigInteger, index = True)
+    sent_dt_tm = db.Column(db.TIMESTAMP(True), index = True, default = 'now()')
 
 class Participant(BaseModel, db.Model):
     """Model for the participant table"""
     __tablename__ = 'participant'
 
     conversation_id = db.Column(db.BigInteger, primary_key = True)
-    user_id = db.Column(db.Text, primary_key = True)
+    user_id = db.Column(db.BigInteger, primary_key = True)

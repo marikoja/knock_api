@@ -1,4 +1,6 @@
+import uuid, hashlib
 from base import Base
+
 
 class User(Base):
 
@@ -6,10 +8,37 @@ class User(Base):
         super(User, self).__init__(db, request)
 
     def create(self):
-        return
+        """Create a new user and return the new user_id."""
+    
+        if self.request.json.has_key('user_name') == False or \
+            self.request.json.has_key('email') == False or \
+            self.request.json.has_key('password') == False:
+            raise Exception("Cannot create new user, required fields missing.")
+        
+        # Verify that the username or email address have not already been registered
+        result = self.query('SELECT 1 FROM users WHERE email = :email OR user_name = :user_name'
+                            ,{'user_name':self.request.json['user_name'], 'email':self.request.json['email']})
+                            
+        if len(result) > 0:
+            raise Exception("Cannot create new user, username or email address already taken.")
+        
+        # Create a random UUID string that we'll salt the user password with
+        salt = uuid.uuid4().hex
+        pw_hash = hashlib.sha512(self.request.json['password'] + salt).hexdigest()
+
+        result = self.query('INSERT INTO users (user_name, email, salt, pw_hash) ' +
+                            'VALUES (:user_name, :email, :salt, :pw_hash) ' +
+                            'RETURNING user_id', {'email':self.request.json['email'], 
+                            'user_name':self.request.json['user_name'],'salt':salt,'pw_hash':pw_hash})
+        
+        self.db.session.commit()
+        
+        return self.to_json(result)
 
     def read(self):
-        result = self.query('SELECT * FROM users WHERE email = :email', {'email' : 'maggie@mutt.com'} )
+        """Return a list of all users excluding hashed password data."""
+        
+        result = self.query('SELECT user_name, user_id, email FROM users', {})
         return self.to_json(result)
 
     def update(self):
