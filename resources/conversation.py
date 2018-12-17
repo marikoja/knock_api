@@ -34,12 +34,12 @@ class Conversation(Base):
     def read(self):
         """Returns the full list of messages and participants for a given conversation."""
         
-        # If the user supplied ?after=:message_id in the request URL query string params
-        # then we will only return messages after occurred after the specified message_id
         after_message_id = self.request.args.get('after')
         
         conversation = {"conversation_id":self.conversation_id}
         
+        # If the user supplied ?after=:message_id in the request URL query string params
+        # then we will only return messages after occurred after the specified message_id
         if after_message_id is not None:
             after_message_id = int(after_message_id)
 
@@ -51,6 +51,8 @@ class Conversation(Base):
                                     'AND m.message_id > :after_message_id', 
                                     {"conversation_id":self.conversation_id, "after_message_id":after_message_id})
             
+        # Else retrieve the full conversation, all messages
+        # TODO add pagination for conversations with a large number of messages
         else:
             conversation['messages'] = self.query('SELECT u.user_name, m.message_id, m.text, m.user_id, to_char(m.sent_dt_tm, \'DD-MON-YYYY HH24:MI\') AS sent_dt_tm ' +
                                     'FROM message m ' +
@@ -70,7 +72,7 @@ class Conversation(Base):
         return self.to_json(conversation)
 
     def update(self):
-        raise Exception("User::update is not yet implemented.")
+        raise Exception("Conversation::update is not yet implemented.")
 
     def delete(self):
-        raise Exception("User::delete is not yet implemented.")
+        raise Exception("Conversation::delete is not yet implemented.")

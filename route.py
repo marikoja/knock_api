@@ -5,6 +5,7 @@ from models import *
 from resources.user import *
 from resources.auth import *
 from resources.conversation import *
+from resources.message import *
 
 app = Flask(__name__)
 
@@ -42,6 +43,18 @@ def conversation_id(conversation_id):
     
     conversation = Conversation(db, request, conversation_id)
     return conversation.read()
+    
+@app.route("/conversation/<int:conversation_id>/message", methods=['POST'])
+def message(conversation_id):
 
+    message = Message(db, request, conversation_id)
+    return message.create()
+
+@app.route("/mailgun_catch_all", methods=['POST'])
+def mailgun():
+    mailgun = Message(db, request, None)
+    
+    return mailgun.handle_mailgun()
+    
 if __name__ == '__main__':
     app.run()
