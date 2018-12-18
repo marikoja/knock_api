@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask_cors import CORS
 from config import Config
 from models import *
 from resources.user import *
@@ -7,7 +8,11 @@ from resources.auth import *
 from resources.conversation import *
 from resources.message import *
 
+
 app = Flask(__name__)
+
+# Allow requests from other domains, enable cross-origin
+CORS(app)
 
 app.config['DEBUG'] = Config.DEBUG
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://'+Config.USER+':\

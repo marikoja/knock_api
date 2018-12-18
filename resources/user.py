@@ -29,9 +29,9 @@ class User(Base):
         pw_hash = hashlib.sha512(self.request.json['password'] + salt).hexdigest()
 
         result = self.query('INSERT INTO users (user_name, email, salt, pw_hash) ' +
-                            'VALUES (LOWER(:user_name), LOWER(:email) :salt, :pw_hash) ' +
-                            'RETURNING user_id', {'email':self.request.json['email'], 
-                            'user_name':self.request.json['user_name'],'salt':salt,'pw_hash':pw_hash})
+                            'VALUES (:user_name, :email, :salt, :pw_hash) ' +
+                            'RETURNING user_id', {'email':self.request.json['email'].lower(), 
+                            'user_name':self.request.json['user_name'].lower(),'salt':salt,'pw_hash':pw_hash})
         
         self.db.session.commit()
         
