@@ -1,5 +1,7 @@
+from config import Config
 from base import Base
 import json
+import requests
 
 class Message(Base):
 
@@ -21,7 +23,9 @@ class Message(Base):
                             {'conversation_id':self.conversation_id, 
                             'text':self.request.json['text'],
                             'user_id':self.request.json['user_id']})
-                            
+
+        self.__email_other_recipients(self.conversation_id, self.request.json['user_id'], self.request.json['text'])
+        
         self.db.session.commit()
     
         return self.to_json(result)
@@ -52,7 +56,7 @@ class Message(Base):
         
         if len(result) == 0:
             raise Exception('Could not add email to conversation, user is not a participant on the conversation.')
-            
+        
         # Add the reply to the conversation
         result = self.query('INSERT INTO message (conversation_id, text, user_id) ' +
                             'VALUES (:conversation_id, :text, :user_id) ' +
@@ -61,10 +65,43 @@ class Message(Base):
                             'text':text,
                             'user_id':user_id})
     
+        
+        self.__email_other_recipients(conversation_id, user_id, text)
+    
         self.db.session.commit()
     
         return self.to_json(result)
 
+    def __email_other_recipients(self, conversation_id, sender_id, message):
+        # Notiy all other participants via email of the new message
+        recipients = self.query('SELECT u.email FROM participant p ' + 
+                            'LEFT JOIN users u ' +
+                            'ON u.user_id = p.user_id ' +
+                            'WHERE p.conversation_id = :conversation_id ' +
+                            'AND p.user_id != :sender_id ', {"conversation_id":conversation_id,
+                            "sender_id":sender_id});
+                            
+        for recipient in recipients:
+            self.__send_email(conversation_id, recipient['email'], message)
+        
+        return
+        
+    def __send_email(self, conversation_id, recipient_email, message):
+        data={"from": "Knock <"+str(conversation_id)+"@"+Config.MAILGUN_DOMAIN+">",
+                  "to": [recipient_email, recipient_email+"@"+Config.MAILGUN_DOMAIN],
+                  "subject": "Conversation " + str(conversation_id),
+                  "text": message}
+        response = requests.post(
+            "https://api.mailgun.net/v3/"+Config.MAILGUN_DOMAIN+"/messages",
+            auth=("api", Config.MAILGUN_API_KEY),
+            data={"from": "Knock <"+str(conversation_id)+"@"+Config.MAILGUN_DOMAIN+">",
+                  "to": [recipient_email, recipient_email+"@"+Config.MAILGUN_DOMAIN],
+                  "subject": "Conversation " + str(conversation_id),
+                  "text": message})
+        print(json.dumps(data))
+        print(response)
+        return
+        
     def read(self):
         raise Exception("Message::read is not yet implemented.")
 

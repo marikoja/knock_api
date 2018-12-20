@@ -21,6 +21,7 @@ class Auth(Base):
             raise Exception('Did not find a matching user.')
         
         salt = result[0]['salt']
+        user_id = result[0]['user_id']
         
         pw_hash = hashlib.sha512(self.request.json['password'] + salt).hexdigest()
         
@@ -34,7 +35,7 @@ class Auth(Base):
            
             result = self.query('INSERT INTO session (user_id, token, expiration) ' +
                             'VALUES (:user_id, :token, :expiration) ' +
-                            'RETURNING session_id, token', {'user_id':result[0]['user_id'], 
+                            'RETURNING session_id, token, user_id', {'user_id':user_id, 
                             'token':session_token,'expiration':expire})
             
             self.db.session.commit()

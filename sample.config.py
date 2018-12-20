@@ -8,3 +8,5 @@ class Config(object):
     HOST = '127.0.0.1'
     PORT = '5432'
     DEBUG = True
+    MAILGUN_API_KEY = ''
+    MAILGUN_DOMAIN = ''
