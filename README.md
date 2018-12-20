@@ -22,11 +22,14 @@ Heroku deployments operate using environment variables and `config.py` is not ne
 * User registration/authentication with salted + hashed passwords.
 * Relay all inbound messages to all participants via email and in-app.
 * Perform basic input validation on required fields.
+* Retain HTML formatting from inbound messages/emails.
 
 ## To Do
 
+* Add unit tests.
 * Read and write session ID and token in a cookie.
 * Validate session info before allowing reads/writes on conversations.
 * More error handling in various places.
 * Pagination support for conversations with a lot of messages.
 * Sanitize HTML to prevent abuse.
+* Support for attachments.
