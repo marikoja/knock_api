@@ -43,7 +43,7 @@ class Conversation(Base):
         if after_message_id is not None:
             after_message_id = int(after_message_id)
 
-            conversation['messages'] = self.query('SELECT u.user_name, m.message_id, m.text, m.user_id, to_char(m.sent_dt_tm, \'DD-MON-YYYY HH24:MI\') AS sent_dt_tm ' +
+            conversation['messages'] = self.query('SELECT u.user_name, m.message_id, m.text, m.user_id, to_char(m.sent_dt_tm, \'DD-MON-YYYY HH24:MI TZ\') AS sent_dt_tm ' +
                                     'FROM message m ' +
                                     'JOIN users u ' +
                                     'ON u.user_id = m.user_id ' +
@@ -54,7 +54,7 @@ class Conversation(Base):
         # Else retrieve the full conversation, all messages
         # TODO add pagination for conversations with a large number of messages
         else:
-            conversation['messages'] = self.query('SELECT u.user_name, m.message_id, m.text, m.user_id, to_char(m.sent_dt_tm, \'DD-MON-YYYY HH24:MI\') AS sent_dt_tm ' +
+            conversation['messages'] = self.query('SELECT u.user_name, m.message_id, m.text, m.user_id, to_char(m.sent_dt_tm, \'DD-MON-YYYY HH24:MI TZ\') AS sent_dt_tm ' +
                                     'FROM message m ' +
                                     'JOIN users u ' +
                                     'ON u.user_id = m.user_id ' +

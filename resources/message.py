@@ -1,7 +1,8 @@
-from config import Config
+#from config import Config
 from base import Base
 import json
 import requests
+import os
 
 class Message(Base):
 
@@ -87,19 +88,13 @@ class Message(Base):
         return
         
     def __send_email(self, conversation_id, recipient_email, message):
-        data={"from": "Knock <"+str(conversation_id)+"@"+Config.MAILGUN_DOMAIN+">",
-                  "to": [recipient_email, recipient_email+"@"+Config.MAILGUN_DOMAIN],
-                  "subject": "Conversation " + str(conversation_id),
-                  "text": message}
         response = requests.post(
-            "https://api.mailgun.net/v3/"+Config.MAILGUN_DOMAIN+"/messages",
-            auth=("api", Config.MAILGUN_API_KEY),
-            data={"from": "Knock <"+str(conversation_id)+"@"+Config.MAILGUN_DOMAIN+">",
-                  "to": [recipient_email, recipient_email+"@"+Config.MAILGUN_DOMAIN],
+            "https://api.mailgun.net/v3/"+os.environ['MAILGUN_DOMAIN']+"/messages",
+            auth=("api", os.environ['MAILGUN_API_KEY']),
+            data={"from": "Knock <"+str(conversation_id)+"@"+os.environ['MAILGUN_DOMAIN']+">",
+                  "to": [recipient_email, recipient_email+"@"+os.environ['MAILGUN_DOMAIN']],
                   "subject": "Conversation " + str(conversation_id),
-                  "text": message})
-        print(json.dumps(data))
-        print(response)
+                  "html": message})
         return
         
     def read(self):

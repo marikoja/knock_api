@@ -1,7 +1,8 @@
 from flask import Flask
 from flask import request
 from flask_cors import CORS
-from config import Config
+#from config import Config
+import os
 from models import *
 from resources.user import *
 from resources.auth import *
@@ -14,9 +15,10 @@ app = Flask(__name__)
 # Allow requests from other domains, enable cross-origin
 CORS(app)
 
-app.config['DEBUG'] = Config.DEBUG
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://'+Config.USER+':\
+app.config['DEBUG'] = True
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://'+Config.USER+':\
 #'+Config.PW+'@'+Config.HOST+':'+Config.PORT+'/'+Config.DB
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db.init_app(app)
 
 @app.route("/auth", methods=['POST'])
@@ -62,4 +64,6 @@ def mailgun():
     return mailgun.handle_mailgun()
     
 if __name__ == '__main__':
-    app.run()
+    # Bind to PORT if defined, otherwise default to 5000.
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
