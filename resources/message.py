@@ -12,6 +12,10 @@ class Message(Base):
         self.conversation_id = conversation_id
 
     def create(self):
+        """
+        Add a new message to an existing conversation and then return the details
+        of that message.
+        """
     
         # Verify that the request includes both a user_id and message text
         if self.request.json.has_key('text') == False \
@@ -41,7 +45,9 @@ class Message(Base):
         # Extract the conversation_id (12) from 12@sandbox242e1dbbbb1f4c9c94acdb96a5f2f461.mailgun.org
         conversation_id = int(self.request.form['recipient'].split('@')[0])
         sender = self.request.form['sender']
-        text = self.request.form['stripped-text'] # stripped-html
+        text = self.request.form['stripped-html'] # stripped-text
+        
+        # TODO need to sanitize inbound html so nothing dangerous gets passed in
         
         # Verify that the sender email address belongs to a registered user
         result = self.query('SELECT user_id FROM users WHERE email = LOWER(:email)', {"email":sender})
@@ -74,7 +80,8 @@ class Message(Base):
         return self.to_json(result)
 
     def __email_other_recipients(self, conversation_id, sender_id, message):
-        # Notiy all other participants via email of the new message
+        """Notiy all other participants via email of the new message"""
+        
         recipients = self.query('SELECT u.email FROM participant p ' + 
                             'LEFT JOIN users u ' +
                             'ON u.user_id = p.user_id ' +
@@ -94,7 +101,7 @@ class Message(Base):
             data={"from": "Knock <"+str(conversation_id)+"@"+os.environ['MAILGUN_DOMAIN']+">",
                   "to": [recipient_email, recipient_email+"@"+os.environ['MAILGUN_DOMAIN']],
                   "subject": "Conversation " + str(conversation_id),
-                  "html": message})
+                  "html": '<html>' + message + '</html>'})
         return
         
     def read(self):

@@ -16,9 +16,14 @@ app = Flask(__name__)
 CORS(app)
 
 app.config['DEBUG'] = True
+
+# Config file with connection info only used for local dev
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://'+Config.USER+':\
 #'+Config.PW+'@'+Config.HOST+':'+Config.PORT+'/'+Config.DB
+
+# Pull in the DATABASE_URL environment variable set by Heroku
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+
 db.init_app(app)
 
 @app.route("/auth", methods=['POST'])

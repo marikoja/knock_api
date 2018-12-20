@@ -8,6 +8,10 @@ class Base(object):
         self.request = request
         
     def query(self, sql, pdo):
+        """
+        Centralized method used for querying against our Postgres database.
+        Returns an array of dicts.
+        """
         
         result = self.db.session.execute(sql, pdo)
         
@@ -24,6 +28,8 @@ class Base(object):
         # TODO add error handling for bad data or null values
         return json.dumps(result)
     
+    # We use abstract methods to force all of our API end-point
+    # classes to implement standard CRUD (create, read, update, delete)
     @abstractmethod
     def create(self):
         return 

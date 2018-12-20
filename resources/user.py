@@ -12,6 +12,7 @@ class User(Base):
     def create(self):
         """Create a new user and return the new user_id."""
     
+        # Verify that the necessary fields were included in the POST data
         if self.request.json.has_key('user_name') == False or \
             self.request.json.has_key('email') == False or \
             self.request.json.has_key('password') == False:

@@ -8,6 +8,10 @@ class Auth(Base):
         super(Auth, self).__init__(db, request)
 
     def create(self):
+        """
+        Create a new session for the user by salting their password, hashing it and comparing
+        the hashed value with what's stored on the user table.
+        """
     
         if self.request.json.has_key('user_name') == False or \
             self.request.json.has_key('password') == False:
@@ -16,7 +20,8 @@ class Auth(Base):
         # Retrieve the salt for the user
         result = self.query('SELECT salt, pw_hash, user_id FROM users WHERE user_name = :user_name'
                             ,{'user_name':self.request.json['user_name']})
-                            
+        
+        # If we didn't find a user with the provided username, then we can't login
         if len(result) == 0:
             raise Exception('Did not find a matching user.')
         

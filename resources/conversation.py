@@ -61,7 +61,7 @@ class Conversation(Base):
                                     'WHERE m.conversation_id = :conversation_id', {"conversation_id":self.conversation_id})
             
         
-        conversation['participants'] = self.query('SELECT u.user_name, u.user_id ' + 
+            conversation['participants'] = self.query('SELECT u.user_name, u.user_id ' + 
                                                     'FROM participant p ' + 
                                                     'JOIN users u ' + 
                                                     'ON u.user_id = p.user_id ' + 
