@@ -1,4 +1,4 @@
-#from config import Config
+from config import Config
 from base import Base
 import json
 import requests
@@ -95,11 +95,17 @@ class Message(Base):
         return
         
     def __send_email(self, conversation_id, recipient_email, message):
+
+        # Attempt to retrieve Mailgun API details through OS environment variables first (so it works with Heroku)
+        # and defalt back to the config file if the environment variable is not present (so it works locally)
+        mailgun_domain = os.environ.get('MAILGUN_DOMAIN', Config.MAILGUN_DOMAIN)
+        mailgun_api_key = os.environ.get('MAILGUN_API_KEY', Config.MAILGUN_API_KEY)
+
         response = requests.post(
-            "https://api.mailgun.net/v3/"+os.environ['MAILGUN_DOMAIN']+"/messages",
-            auth=("api", os.environ['MAILGUN_API_KEY']),
-            data={"from": "Knock <"+str(conversation_id)+"@"+os.environ['MAILGUN_DOMAIN']+">",
-                  "to": [recipient_email, recipient_email+"@"+os.environ['MAILGUN_DOMAIN']],
+            "https://api.mailgun.net/v3/"+mailgun_domain+"/messages",
+            auth=("api", mailgun_api_key),
+            data={"from": "Knock <"+str(conversation_id)+"@"+mailgun_domain+">",
+                  "to": [recipient_email, recipient_email+"@"+mailgun_domain],
                   "subject": "Conversation " + str(conversation_id),
                   "html": '<html>' + message + '</html>'})
         return
